@@ -1,46 +1,21 @@
 const mongoose = require('mongoose');
-const express = require('express');
+const express = require('express')
+const router = express.Router()
 const Joi = require('joi');
-const app = express();
+const {Customer} = require('../models/customers');
 
-mongoose.connect('mongodb://127.0.0.1/vidly',{
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-    .then(()=>console.log('connected to mongodb...'))
-    .catch(err=>console.error('could not connect to mongodb...',err))
-
-const customerSchema = new mongoose.Schema({
-    name:{
-        type: String,
-        required: true
-    },
-    isGold: {
-        type:Boolean,
-        default: false},
-    phone:{
-        type: String,
-        required: true
-    }
-});
-
-const Customer = mongoose.model('Customer',customerSchema);
-
-app.use(express.json());
-
-
-app.get('/api/customers',async (req,res)=>{
+router.get('/',async (req,res)=>{
     const customers = await Customer.find().sort('name');
     res.send(customers)
 });
 
-app.get('/api/customers/:id',async(req,res)=>{
+router.get('/:id',async(req,res)=>{
     const customer =await Customer.findById(req.params.id)
     if(!customer){res.status(404).send('not found')};
     res.send(customer);
 });
 
-app.post('/api/customers',async(req,res)=>{
+router.post('/',async(req,res)=>{
     const schema={
         name:Joi.string().min(5).max(50).required(),
         isGold:Joi.boolean(),
@@ -57,7 +32,7 @@ app.post('/api/customers',async(req,res)=>{
     res.send(customer);
 });
 
-app.put('/api/customers/:id',async (req,res)=>{
+router.put('/:id',async (req,res)=>{
     const schema={
         name:Joi.string().min(5).max(50).required(),
         isGold:Joi.boolean(),
@@ -78,13 +53,11 @@ app.put('/api/customers/:id',async (req,res)=>{
         res.send(customer)
 });
 
-app.delete('/api/customers/:id',async(req,res)=>{
+router.delete('/:id',async(req,res)=>{
     const customer = await Customer.findByIdAndRemove(req.params.id)
     if(!customer){return res.status(404).send('not found')};
 
         res.send(customer)
     })
 
-
-
-app.listen(3000,()=>console.log('listening to port 3000'))
+module.exports = router;

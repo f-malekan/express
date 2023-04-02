@@ -1,43 +1,24 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const Joi = require('joi');
-const app = express();
-
-mongoose.connect('mongodb://127.0.0.1/vidly',{
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-    .then(()=>console.log('connected to mongodb...'))
-    .catch(err=>console.error('could not connect to mongodb...',err))
-
-const genreSchema = new mongoose.Schema({
-    name:{
-        type: String,
-        required: true,
-        minlength: 5,
-        maxlength: 50
-    }
-});
-
-const Genre = mongoose.model('Genre',genreSchema);
-
-app.use(express.json());
+const router = express.Router();
+const {Genre}=require("../models/genres")
 
 
-app.get('/api/genres',async (req,res)=>{
+router.get('/',async (req,res)=>{
     const genres = await Genre.find().sort('name');
     res.send(genres)
 });
 
-app.get('/api/genres/:id',async(req,res)=>{
+router.get('/:id',async(req,res)=>{
     const genre =await Genre.findById(req.params.id)
     if(!genre){res.status(404).send('not found')};
     res.send(genre);
 });
 
-app.post('/api/genres',async(req,res)=>{
+router.post('/',async(req,res)=>{
     const schema={
-        name:Joi.string().min(3).required()
+        name:Joi.string().min(5).required()
     };
     const result = Joi.validate(req.body,schema);
     if(result.error){
@@ -50,7 +31,7 @@ app.post('/api/genres',async(req,res)=>{
     res.send(genre);
 });
 
-app.put('/api/genres/:id',async (req,res)=>{
+router.put('/:id',async (req,res)=>{
     const schema={
         name:Joi.string().min(3).required()
     };
@@ -70,13 +51,11 @@ app.put('/api/genres/:id',async (req,res)=>{
         res.send(genre)
 });
 
-app.delete('/api/genres/:id',async(req,res)=>{
+router.delete('/:id',async(req,res)=>{
     const genre = await Genre.findByIdAndRemove(req.params.id)
     if(!genre){return res.status(404).send('not found')};
 
         res.send(genre)
     })
 
-
-
-app.listen(3000,()=>console.log('listening to port 3000'))
+module.exports = router
