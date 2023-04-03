@@ -5,6 +5,7 @@ const customerRoutes=require('./routes/customerRoutes')
 const genreRoutes=require('./routes/genreRoutes')
 const movieRoutes=require('./routes/movieRoutes')
 const rentalRoutes=require('./routes/rentalRoutes')
+const userRoutes=require('./routes/userRoutes')
 
 
 app.use(express.json())
@@ -12,7 +13,7 @@ app.use("/api/customers",customerRoutes)
 app.use("/api/genres",genreRoutes)
 app.use("/api/movies",movieRoutes)
 app.use("/api/rentals",rentalRoutes)
-
+app.use("/api/users",userRoutes)
 
 mongoose.connect('mongodb://127.0.0.1/vidly',{
     useNewUrlParser: true,
